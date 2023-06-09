@@ -60,16 +60,22 @@ public class MainActivity extends AppCompatActivity {
         //checkbox
         variableBinding.checkbox.setOnCheckedChangeListener((btn, isChecked) -> {
             model.getIsSelected().postValue(isChecked);
+            String messageTrue = "true";
+            Toast.makeText(this, messageTrue, Toast.LENGTH_SHORT).show();
         });
 
         // radio button
         variableBinding.radiobutton.setOnCheckedChangeListener((btn, isChecked) -> {
             model.getIsSelected().postValue(isChecked);
+            String messageTrue = "true";
+            Toast.makeText(this, messageTrue, Toast.LENGTH_SHORT).show();
         });
 
         // switch button
         variableBinding.switchbutton.setOnCheckedChangeListener((btn, isChecked) -> {
             model.getIsSelected().postValue(isChecked);
+            String messageTrue = "true";
+            Toast.makeText(this, messageTrue, Toast.LENGTH_SHORT).show();
         });
 
 
