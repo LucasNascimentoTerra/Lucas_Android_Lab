@@ -4,7 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:layout_marginTop="27dp"
+    android:layout_marginBottom="27dp"
+    android:layout_marginLeft="48dp"
+    android:layout_marginRight="48dp">
+
+
+
 
     <Button
         android:id="@+id/button1"
@@ -18,7 +25,12 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="DuplicateSpeakableTextCheck" />
+        tools:ignore="DuplicateSpeakableTextCheck"
+
+        android:nextFocusUp="@id/button1"
+        android:nextFocusDown="@id/spin_switch"
+        android:nextFocusRight="@id/button2"
+        android:nextFocusLeft="@id/button3"/>
 
     <Button
         android:id="@+id/button2"
@@ -29,7 +41,12 @@
         app:layout_constraintEnd_toStartOf="@+id/button3"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button1"
-        app:layout_constraintTop_toTopOf="@id/button1" />
+        app:layout_constraintTop_toTopOf="@id/button1"
+
+        android:nextFocusUp="@id/button2"
+        android:nextFocusDown="@id/spin_switch"
+        android:nextFocusRight="@id/button3"
+        android:nextFocusLeft="@id/button1"/>
 
     <Button
         android:id="@+id/button3"
@@ -41,7 +58,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button2"
-        app:layout_constraintTop_toTopOf="@id/button2" />
+        app:layout_constraintTop_toTopOf="@id/button2"
+
+        android:nextFocusUp="@id/button3"
+        android:nextFocusDown="@id/spin_switch"
+        android:nextFocusRight="@id/button1"
+        android:nextFocusLeft="@id/button2"/>
 
     <ImageView
         android:id="@+id/flagview"
@@ -63,6 +85,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/flagview"
         app:layout_constraintVertical_bias="0.547"
-        tools:ignore="TouchTargetSizeCheck,UseSwitchCompatOrMaterialXml" />
+        tools:ignore="TouchTargetSizeCheck,UseSwitchCompatOrMaterialXml"
+
+        android:nextFocusUp="@id/button2"
+        android:nextFocusDown="@id/spin_switch"
+        android:nextFocusRight="@id/button3"
+        android:nextFocusLeft="@id/button1"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
