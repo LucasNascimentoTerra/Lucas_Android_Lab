@@ -3,6 +3,9 @@ package algonquin.cst2335.nasc0014;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,7 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import androidx.fragment.app.Fragment;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -40,12 +43,25 @@ public class ChatRoom extends AppCompatActivity {
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
 
+        chatModel.selectedMessage.observe(this, newMessageValue -> {
+            FragmentManager fMgr = getSupportFragmentManager();
+            FragmentTransaction tx = fMgr.beginTransaction();
+            Fragment previousFragment = fMgr.findFragmentById(R.id.fragmentLocation);
+            if (previousFragment != null){
+                tx.remove(previousFragment);
+            }
+            MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
+            tx.add(R.id.fragmentLocation, chatFragment);
+            tx.addToBackStack(null);
+            tx.commit();
+        });
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages.getValue();
 
         if (messages == null) {
-            chatModel.messages.postValue(messages = new ArrayList<algonquin.cst2335.nasc0014.ChatMessage>());
+            chatModel.messages.postValue(messages = new ArrayList<ChatMessage>());
         }
 
 
@@ -54,7 +70,7 @@ public class ChatRoom extends AppCompatActivity {
         ChatMessageDAO mDAO = db.cmDAO();
 
         if (messages == null) {
-            chatModel.messages.setValue(messages = new ArrayList<algonquin.cst2335.nasc0014.ChatMessage>());
+            chatModel.messages.setValue(messages = new ArrayList<ChatMessage>());
 
             Executor thread = Executors.newSingleThreadExecutor();
             thread.execute(() ->
@@ -74,7 +90,7 @@ public class ChatRoom extends AppCompatActivity {
 
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh:mm:ss a", Locale.getDefault());
             String timeSent = sdf.format(new Date());
-            algonquin.cst2335.nasc0014.ChatMessage newMessage = new algonquin.cst2335.nasc0014.ChatMessage(messageText, timeSent, true);
+            ChatMessage newMessage = new ChatMessage(messageText, timeSent, true);
             messages.add(newMessage);
             myAdapter.notifyItemInserted(messages.size() - 1);
             binding.textInput.setText("");
@@ -85,7 +101,7 @@ public class ChatRoom extends AppCompatActivity {
 
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd-MMM-yyyy hh:mm:ss a", Locale.getDefault());
             String timeSent = sdf.format(new Date());
-            algonquin.cst2335.nasc0014.ChatMessage newMessage = new algonquin.cst2335.nasc0014.ChatMessage(messageText, timeSent, false);
+            ChatMessage newMessage = new ChatMessage(messageText, timeSent, false);
             messages.add(newMessage);
             myAdapter.notifyItemInserted(messages.size() - 1);
             binding.textInput.setText("");
@@ -110,7 +126,7 @@ public class ChatRoom extends AppCompatActivity {
 
             @Override
             public void onBindViewHolder(@NonNull MyRowHolder holder, int position) {
-                algonquin.cst2335.nasc0014.ChatMessage obj = messages.get(position);
+                ChatMessage obj = messages.get(position);
                 holder.messageText.setText("");
                 holder.timeText.setText(obj.getTimeSent());
                 holder.messageText.setText(obj.getMessage());
@@ -125,7 +141,7 @@ public class ChatRoom extends AppCompatActivity {
 
             @Override
             public int getItemViewType(int position) {
-                algonquin.cst2335.nasc0014.ChatMessage message = messages.get(position);
+                ChatMessage message = messages.get(position);
                 if (message.isSentButton(true)) {
                     return 0;
                 } else {
@@ -151,7 +167,7 @@ public class ChatRoom extends AppCompatActivity {
                 int position = getAdapterPosition();
 
 
-
+/*
                 AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
                 builder.setMessage("Do you want to delete the message: " + messageText.getText())
                 .setTitle("Question:")
@@ -170,8 +186,12 @@ public class ChatRoom extends AppCompatActivity {
                                     .show();
 
                         }).create().show();
+*/
+                ChatMessage selectedMessage = messages.get(position);
 
+                chatModel.selectedMessage.postValue(selectedMessage);
             });
+
 
 
             messageText = itemView.findViewById(R.id.message);
