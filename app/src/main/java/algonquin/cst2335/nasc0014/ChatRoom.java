@@ -3,6 +3,7 @@ package algonquin.cst2335.nasc0014;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -12,9 +13,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
 import androidx.fragment.app.Fragment;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,15 +42,35 @@ public class ChatRoom extends AppCompatActivity {
     ActivityChatRoomBinding binding;
     ArrayList<algonquin.cst2335.nasc0014.ChatMessage> messages;
     ChatRoomViewModel chatModel;
+    int position;
+
+    ChatMessageDAO mDAO;
 
     private RecyclerView.Adapter myAdapter;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        Toolbar myToolBar = findViewById(R.id.toolBar);
+        setSupportActionBar(myToolBar);
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
+
+
+
+
+
+
+
 
         chatModel.selectedMessage.observe(this, newMessageValue -> {
             FragmentManager fMgr = getSupportFragmentManager();
@@ -67,7 +94,7 @@ public class ChatRoom extends AppCompatActivity {
 
 
         MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
-        ChatMessageDAO mDAO = db.cmDAO();
+        mDAO = db.cmDAO();
 
         if (messages == null) {
             chatModel.messages.setValue(messages = new ArrayList<ChatMessage>());
@@ -112,6 +139,7 @@ public class ChatRoom extends AppCompatActivity {
 
         binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
+
             @Override
             public MyRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
@@ -148,14 +176,17 @@ public class ChatRoom extends AppCompatActivity {
                     return 1;
                 }
             }
+
+
         });
 
 
 
     }
 
-    class MyRowHolder extends RecyclerView.ViewHolder {
 
+
+    class MyRowHolder extends RecyclerView.ViewHolder {
         TextView messageText;
         TextView timeText;
 
@@ -164,7 +195,7 @@ public class ChatRoom extends AppCompatActivity {
 
             itemView.setOnClickListener(click ->{
 
-                int position = getAdapterPosition();
+                position = getAdapterPosition();
 
 
 /*
@@ -199,6 +230,41 @@ public class ChatRoom extends AppCompatActivity {
         }
 
         }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    super.onOptionsItemSelected(item);
+
+
+       if (item.getItemId()== R.id.item_1){
+
+
+            ChatMessage selectedMessage = messages.get(position);
+            chatModel.selectedMessage.postValue(selectedMessage);
+            AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+            builder.setMessage("Do you want to delete the message: ")
+                .setTitle("Question:")
+                .setNegativeButton("No", (dialog, cl) ->{ })
+                .setPositiveButton("Yes", (dialog, cl) -> {
+
+                    ChatMessage removedMessage = messages.get(position);
+                    Executor thread = Executors.newSingleThreadExecutor();
+                    thread.execute(() ->
+                    {
+                        mDAO.deleteMessage(removedMessage); //Once you get the data from database
+                        messages.remove(position);
+                        runOnUiThread(() -> myAdapter.notifyItemRemoved(position)); //You can then load the RecyclerView
+                    });
+
+                    myAdapter.notifyItemRemoved(position);
+
+                    Toast.makeText(this,"You deleted the message #" + position, Toast.LENGTH_LONG).show();
+
+                    }).create().show();
+        }
+        return true;
+    }
     }
 
 
